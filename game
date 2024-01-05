@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+ <head>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f5f5f5;
+      }
+
+      canvas {
+        border: 2px solid #000;
+      }
+    </style>
+ </head>
+ <body>
+    <canvas id="ticTacToe" width="300" height="300"></canvas>
+    <script>
+      const canvas = document.getElementById('ticTacToe');
+      const ctx = canvas.getContext('2d');
+
+      let turn = 'X';
+      let board = Array(9).fill(null);
+
+      function drawBoard() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 5;
+
+        // draw horizontal lines
+        for (let i = 1; i < 3; i++) {
+          ctx.beginPath();
+          ctx.moveTo(0, i * 100);
+          ctx.lineTo(300, i * 100);
+          ctx.stroke();
+        }
+
+        // draw vertical lines
+        for (let i = 1; i < 3; i++) {
+          ctx.beginPath();
+          ctx.moveTo(i * 100, 0);
+          ctx.lineTo(i * 100, 300);
+          ctx.stroke();
+        }
+      }
+
+      function drawMark(row, col) {
+        ctx.strokeStyle = turn === 'X' ? 'red' : 'blue';
+        ctx.lineWidth = 5;
+
+        const x = col * 100;
+        const y = row * 100;
+
+        ctx.beginPath();
+        if (turn === 'X') {
+          ctx.moveTo(x + 20, y + 20);
+          ctx.lineTo(x + 80, y + 80);
+          ctx.moveTo(x + 80, y + 20);
+          ctx.lineTo(x + 20, y + 80);
+        } else {
+          ctx.arc(x + 50, y + 50, 30, 0, Math.PI * 2, false);
+        }
+        ctx.stroke();
+      }
+
+      function checkWin() {
+        // check rows
+        for (let i = 0; i < 3; i++) {
+          if (board[i * 3] && board[i * 3] === board[i * 3 + 1] && board[i * 3 + 1] === board[i * 3 + 2]) {
+            return true;
+          }
+        }
+
+        // check columns
+        for (let i = 0; i < 3; i++) {
+          if (board[i] && board[i] === board[i + 3] && board[i + 3] === board[i + 6]) {
+            return true;
+          }
+        }
+
+        // check diagonals
+        if (board[0] && board[0] === board[4] && board[4] === board[8]) {
+          return true;
+        }
+        if (board[2] && board[2] === board[4] && board[4] === board[6]) {
+          return true;
+        }
+
+        return false;
+      }
+
+      function checkDraw() {
+        return board.every(square => square !== null);
+      }
+
+      function switchTurn() {
+        turn = turn === 'X' ? 'O' : 'X';
+      }
+
+      function handleMove(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const row = Math.floor(y / 100);
+        const col = Math.floor(x / 100);
+
+        const index = row * 3 + col;
+
+        if (!board[index]) {
+          board[index] = turn;
+          drawMark(row, col);
+
+          if (checkWin()) {
+            alert(`Player ${turn} wins!`);
+            location.reload();
+          } else if (checkDraw()) {
+            alert('It\'s a draw!');
+            location.reload();
+          } else {
+            switchTurn();
+          }
+        }
+      }
+
+      canvas.addEventListener('click', handleMove);
+      drawBoard();
+    </script>
+ </body>
+</html>
